@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  email    String @unique
+  password String
+
+  name    String
+  surname String
+
+  description String
+  avatarUrl   String @map("avatar_url")
+
+  albums    Album[]
+  track     Track[]
+  trackLike TrackLike[]
+  albumLike AlbumLike[]
+}
+
+model Track {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  trackUrl   String @unique @map("track_url")
+  duration   Int    @default(0)
+  previewUrl String @unique @map("preview_url")
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  albumItems AlbumItem[]
+  trackLike  TrackLike[]
+}
+
+model AlbumItem {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  albumId Int
+  album   Album @relation(fields: [albumId], references: [id])
+
+  trackId Int
+  track   Track @relation(fields: [trackId], references: [id])
+}
+
+model Album {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title       String @unique
+  description String
+  previewUrl  String @unique
+
+  userId Int
+  User   User @relation(fields: [userId], references: [id])
+
+  albumItem AlbumItem[]
+  albumLike AlbumLike[]
+}
+
+model TrackLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  trackId Int
+  track   Track @relation(fields: [trackId], references: [id])
+}
+
+model AlbumLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  albumId Int
+  track   Album @relation(fields: [albumId], references: [id])
+}
